@@ -2,9 +2,14 @@ BEDROCK_FOUNDATION_MODEL_ID_AMAZON_TITAN_V1 = 'amazon.titan-embed-text-v1'
 BEDROCK_FOUNDATION_MODEL_ID_ANTHROPIC_CLAUDE_V21 = 'anthropic.claude-v2:1'
 REGION = 'us-east-1'
 AWS_CREDENTIALS_PROFILE_NAME = 'default'
+
 CONTEXT_URL = "https://raw.githubusercontent.com/langchain-ai/langchain/master/docs/docs/modules/state_of_the_union.txt"
 CONTEXT_FILE_PATH = './CONTEXT_FILE'
-PROMPT = 'Which countries are part of OTAN ?'
+PROMPTS = [
+     'How much aid is US planning to give to Ukraine?',
+     'What countries are part of NATO ?',
+     'What is mentioned about infrastructure ?'
+]
 
 # Build Documents
 
@@ -22,8 +27,8 @@ documents = loader.load()
 # Chunkize and Fit into LLM
 from langchain.text_splitter import CharacterTextSplitter
 chunks = CharacterTextSplitter(
-     chunk_size = 500,
-     chunk_overlap = 50
+     chunk_size = 1500,
+     chunk_overlap = 250
 ).split_documents(
      documents = documents
 )
@@ -63,7 +68,6 @@ Answer:
 prompt_template = ChatPromptTemplate.from_template(template)
 print(f"Prompt Template:\n: {prompt_template}")
 print("\n")
-print(f"Prompt:\n: {PROMPT}")
 
 # Generate build a chain for the RAG pipeline, chaining together the retriever, the prompt template and the LLM. 
 #Once the RAG chain is defined, you can invoke it.
@@ -84,6 +88,10 @@ rag_chain = (
      | StrOutputParser() 
 )
 
-output = rag_chain.invoke(PROMPT)
-print(output)
+from termcolor import cprint
+for prompt in PROMPTS:
+     cprint(f"Prompt: {prompt}\n", "green")
+     output = rag_chain.invoke(prompt)
+     cprint(f"Output: {output}\n", "light_blue")
+     print("\n")
 
